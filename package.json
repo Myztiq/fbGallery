@@ -1,0 +1,13 @@
+{
+  "name": "ryan-kahn.com",
+	"author": "Ryan Kahn",
+  "contributors": [
+  ],
+  "dependencies": {
+    "express": "2.3.11",
+    "ejs": "0.4.3",
+    "mongodb": "0.9.6-14",
+    "mongoose": "2.1.0"
+  },
+  "version": "0.1.0"
+}
