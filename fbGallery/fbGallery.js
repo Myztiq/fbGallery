@@ -76,9 +76,9 @@ function updateAlbumPhotos(photoGallery,coverID){
           var photo = {
             id:results[i].id,
             large:{
-              height: results[i].images[1].height,
-              width: results[i].images[1].width,
-              url: results[i].images[1].source
+              height: results[i].images[0].height,
+              width: results[i].images[0].width,
+              url: results[i].images[0].source
             },
             small:results[i].picture
           };
