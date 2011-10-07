@@ -1,0 +1,30 @@
+<script>
+	function viewGallery(galleryID){
+		jQuery.post("/gallery/"+galleryID,function(data){
+			var galleryData = JSON.parse(data);
+			if(galleryData.length){
+				galleryData = galleryData[0];
+			}
+			jQuery(".galleryContainer").html("");
+			for(i=0;i<galleryData.photos.length;i++){
+				jQuery(".galleryContainer").append("<img src='"+galleryData.photos[i].small+"' onclick='viewPhoto(\""+galleryData.photos[i].large.url+"\")'>");
+//				jQuery(".galleryContainer").append("<span>Width:"+galleryData.photos[i].large.width+" Height:"+galleryData.photos[i].large.height+"</span>");
+			}
+		});
+	}
+	function viewPhoto(photoURL){
+		jQuery(".galleryContainer").html("");
+		jQuery(".galleryContainer").append("<img src='"+photoURL+"'>");
+	}
+</script>
+<div class="galleryContainer">
+	<% for(var i=0; i<galleries.length; i++) {%>
+		<% if(galleries[i].coverPhoto.length){%>
+			<a href="javascript:;" onclick="viewGallery('<%=galleries[i].id%>')">
+				<img src="<%= galleries[i].coverPhoto[0].small%>">
+				<%=galleries[i].name%>
+			</a>
+		<% }%>
+		<br>
+	<% }%>
+</div>

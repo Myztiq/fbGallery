@@ -1,17 +1,33 @@
-var userID = "",
-  accessToken = "",
-  https = require('https');
+var accessToken = "",
+  https = require('https'),
+  mongoose = require('mongoose'),
+  Schema = mongoose.Schema,
+  ObjectId = Schema.ObjectId;
 
-exports.init = function(userID1,accessToken1){
-  userID = userID1;
+//Begin DB stuff
+mongoose.connect('mongodb://localhost/fbGallery');
+
+exports.init = function(accessToken1){
   accessToken = accessToken1;
 }
 
-exports.getPhotogalleries = function(callback){
+exports.getPhotoGalleries = function(callback,galleryID){
+  if(typeof galleryID == "undefined"){
+    albumModel.find({}, function (err, docs) {
+      callback(docs);
+    });
+  }else{
+    albumModel.find({id:galleryID}, function (err, docs) {
+      callback(docs);
+    });
+  }
+}
+
+exports.updatePhotoGalleries = function(){
   var options = {
     host: 'graph.facebook.com',
     port: 443,
-    path: "/"+userID+'/albums?access_token='+accessToken,
+    path: '/me/albums?access_token='+accessToken,
     method: 'GET'
   };
   var req = https.request(options, function(res) {
@@ -21,38 +37,98 @@ exports.getPhotogalleries = function(callback){
       data += ""+chunk;
     });
     res.on('end', function () {
-      var results = JSON.parse(data);
-      parsePhotoGalleryArray(results.data,callback);
+      if(res.statusCode == 200){
+        var results = JSON.parse(data);
+        for(var i=0;i<results.data.length;i++){
+          if(results.data[i].privacy == "everyone"){
+            var photoGallery = new albumModel();
+            photoGallery.id = results.data[i].id;
+            photoGallery.name = results.data[i].name;
+            updateAlbumPhotos(photoGallery,results.data[i].cover_photo);
+          }
+        }
+      }else{
+        console.log(res.statusCode,data);
+      }
     });
   });
   req.end();
 }
 
-var pagesToProcess = 0;
-var photoGalleries = [];
-function parsePhotoGalleryArray(data,callback){
-  pagesToProcess = data.length;
-  for(var i=0;i<data.length;i++){
-    if(data[i].privacy == "everyone"){
-      var photoGallery = {
-        id:data[i].id,
-        coverPhotoID:data[i].cover_photo,
-        name:data[i].name
-      };
-      photos: exports.getAlbumPhotos(photoGallery,callback)
-    }else{
-      pagesToProcess--;
-    }
-  }
-  if(pagesToProcess == 0){
-    callback(photoGalleries);
-  }
+function updateAlbumPhotos(photoGallery,coverID){
+  var options = {
+    host: 'graph.facebook.com',
+    port: 443,
+    path: '/'+photoGallery.id+'/photos?access_token='+accessToken,
+    method: 'GET'
+  };
+  var req = https.request(options, function(res) {
+    res.setEncoding('utf8');
+    var data = "";
+    res.on('data', function (chunk) {
+      data += ""+chunk;
+    });
+    res.on('end', function () {
+      if(res.statusCode == 200){
+        var results = JSON.parse(data);
+        results = results.data;
+        for(var i=0;i<results.length;i++){
+          var photo = {
+            id:results[i].id,
+            large:{
+              height: results[i].images[1].height,
+              width: results[i].images[1].width,
+              url: results[i].images[1].source
+            },
+            small:results[i].picture
+          };
+          photoGallery.photos.push(photo);
+          if(results[i].id == coverID){
+            photoGallery.coverPhoto.push(photo);
+          }
+        }
+        albumModel.findOne({ id: photoGallery.id}, function (err, doc){
+          if(doc != null){
+            albumModel.remove({id:photoGallery.id},function(){
+              photoGallery.save(function(err){
+                if(err){
+                  console.log(err);
+                }
+              });
+            });
+          }else{
+            photoGallery.save(function(err){
+              if(err){
+                console.log(err);
+              }
+            });
+          }
+        });
+      }else{
+        console.log(res.statusCode,data);
+      }
+    });
+  });
+  req.end();
 }
 
-exports.getAlbumPhotos = function(photoGallery,cb){
-  pagesToProcess--;
-  photoGalleries.push(photoGallery);
-  if(pagesToProcess == 0){
-    cb(photoGalleries);
-  }
-}
+
+
+var photoSchema = new Schema({
+  id:{type:String, required:true},
+  large: {
+     height:Number,
+     width:Number,
+     url:String
+  },
+  small: {type:String},
+  position: Number
+});
+
+var albumSchema = new Schema({
+  id:{type:String, required:true,unique: true},
+  coverPhoto: [photoSchema],
+  name: String,
+  photos: [photoSchema]
+});
+var albumModel = mongoose.model('album',albumSchema);
