@@ -93,6 +93,8 @@ function updateAlbumPhotos(photoGallery,coverID){
               photoGallery.save(function(err){
                 if(err){
                   console.log(err);
+                }else{
+                  console.log("Save Complete");
                 }
               });
             });
@@ -100,6 +102,8 @@ function updateAlbumPhotos(photoGallery,coverID){
             photoGallery.save(function(err){
               if(err){
                 console.log(err);
+              }else{
+                console.log("Save Complete");
               }
             });
           }
