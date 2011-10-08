@@ -11,7 +11,7 @@
 			var top = sourceDiv.css("top");
 			jQuery(".galleryContainer .gallery").html("");
 			for(i=0;i<galleryData.photos.length;i++){
-				jQuery(".galleryContainer .gallery").append('<div class="photoContainer" style="left:'+left+';top:'+top+'" data-photo="'+galleryData.photos[i].large.url+'"><img src="'+galleryData.photos[i].small+'">');
+				jQuery(".galleryContainer .gallery").append('<div class="photoContainer" style="opacity:0;left:'+left+';top:'+top+'" data-photo="'+galleryData.photos[i].large.url+'"><img src="'+galleryData.photos[i].small+'">');
 			}
 			jQuery(".galleryContainer .home").hide();
 			jQuery(".backToHome").fadeIn();
@@ -31,39 +31,49 @@
 	function viewOriginal(){
 		jQuery(".galleryContainer .home .photoContainer").css("left","0");
 		jQuery(".galleryContainer .home .photoContainer").css("top","0");
+		jQuery(".galleryContainer .home .photoContainer").css("opacity","0");
+		jQuery(".galleryContainer .home .caption").css("opacity","0");
 		jQuery(".galleryContainer .home").show();
 		jQuery(".backToHome").fadeOut();
 		jQuery(".galleryContainer .gallery").hide();
 		animatePhotos();
 	}
 	jQuery(document).ready(function(){
-		animatePhotos();
+		viewOriginal();
 		jQuery(".galleryContainer").delegate(".photoContainer","click",handlePhotoClick);
 		jQuery(".backToHome").click(viewOriginal);
 	});
 	function animatePhotos(){
 		var currentRow = 0;
 		var currentRowItem = -1;
+		var itemHeight = 150;
+		var itemWidth = 150;
 		jQuery(".galleryContainer div:visible .photoContainer").each(function(index,item){
 			currentRowItem++;
 			if(currentRowItem > 4){
 				currentRow++;
 				currentRowItem = 0;
 			}
+			var captions = jQuery(item).children(".caption");
+			if(captions.length){
+				jQuery(captions).animate({
+					opacity:1
+				},1000);
+			}
 			jQuery(item).animate({
-				left:(currentRowItem*150),
-				top:(currentRow*150)
+				left:(currentRowItem*itemWidth),
+				top:(currentRow*itemHeight),
+				opacity:1
 			},1*1000);
 		});
 		jQuery(".galleryContainer").animate({
-			height:(currentRow+1)*150+30
-		},1000)
+			height:(currentRow+1)*itemHeight+30
+		},1000);
 	}
 	function handlePhotoClick(evt){
 		var galleryID = jQuery(evt.currentTarget).data("galleryid");
 		if(typeof galleryID == "undefined"){
 			var photoURL = jQuery(evt.currentTarget).data("photo");
-			console.log(photoURL);
 			viewPhoto(photoURL);
 		}else{
 			viewGallery(galleryID);
@@ -77,9 +87,9 @@
 	<div class="home">
 		<% for(var i=0; i<galleries.length; i++) {%>
 			<% if(galleries[i].coverPhoto.length){%>
-				<div class="photoContainer" data-galleryID="<%=galleries[i].id%>">
+				<div class="photoContainer" data-galleryID="<%=galleries[i].id%>" style="opacity:0">
 					<img src="<%= galleries[i].coverPhoto[0].small%>">
-					<div class="caption" style="display:none">
+					<div class="caption" style="opacity:0">
 						<%=galleries[i].name%>
 					</div>
 				</div>
