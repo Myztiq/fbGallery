@@ -1,0 +1,7 @@
+Proof of concept at the moment for a facebook photogallery loading service.
+
+It will use a permanent OAuth token to auth with facebook. Then it will pull your personal phogotgalleries, making sure to only grab the public ones.
+It will then loop through the photogallery photos and populate a mongoDB server. All future requests pull directly from the mongodb server to deliver super fast results.
+The images are loading through facebooks CDN so you dont use any bandwith and things load super snappy.
+
+TODO: Make the interface look better
