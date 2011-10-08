@@ -1,0 +1,93 @@
+<link rel="stylesheet" type="text/css" href="/styles/gallery.css">
+<script>
+	function viewGallery(galleryID){
+		jQuery.post("/gallery/"+galleryID,function(data){
+			var galleryData = JSON.parse(data);
+			if(galleryData.length){
+				galleryData = galleryData[0];
+			}
+			var sourceDiv = jQuery(".galleryContainer .photoContainer[data-galleryid='"+galleryID+"']");
+			var left = sourceDiv.css("left");
+			var top = sourceDiv.css("top");
+			jQuery(".galleryContainer .gallery").html("");
+			for(i=0;i<galleryData.photos.length;i++){
+				jQuery(".galleryContainer .gallery").append('<div class="photoContainer" style="left:'+left+';top:'+top+'" data-photo="'+galleryData.photos[i].large.url+'"><img src="'+galleryData.photos[i].small+'">');
+			}
+			jQuery(".galleryContainer .home").hide();
+			jQuery(".backToHome").fadeIn();
+			jQuery(".galleryContainer .gallery").show();
+			animatePhotos();
+		});
+	}
+	function viewPhoto(photoURL){
+		jQuery.fancybox({
+            'orig'          : jQuery(".galleryContainer .photoContainer[data-photo='"+photoURL+"']"),
+            'href'          : photoURL,
+            'transitionIn'  : 'elastic',
+            'transitionOut' : 'elastic',
+			'padding'        : 5
+        });
+	}
+	function viewOriginal(){
+		jQuery(".galleryContainer .home .photoContainer").css("left","0");
+		jQuery(".galleryContainer .home .photoContainer").css("top","0");
+		jQuery(".galleryContainer .home").show();
+		jQuery(".backToHome").fadeOut();
+		jQuery(".galleryContainer .gallery").hide();
+		animatePhotos();
+	}
+	jQuery(document).ready(function(){
+		animatePhotos();
+		jQuery(".galleryContainer").delegate(".photoContainer","click",handlePhotoClick);
+		jQuery(".backToHome").click(viewOriginal);
+	});
+	function animatePhotos(){
+		var currentRow = 0;
+		var currentRowItem = -1;
+		jQuery(".galleryContainer div:visible .photoContainer").each(function(index,item){
+			currentRowItem++;
+			if(currentRowItem > 4){
+				currentRow++;
+				currentRowItem = 0;
+			}
+			jQuery(item).animate({
+				left:(currentRowItem*150),
+				top:(currentRow*150)
+			},1*1000);
+		});
+		jQuery(".galleryContainer").animate({
+			height:(currentRow+1)*150+30
+		},1000)
+	}
+	function handlePhotoClick(evt){
+		var galleryID = jQuery(evt.currentTarget).data("galleryid");
+		if(typeof galleryID == "undefined"){
+			var photoURL = jQuery(evt.currentTarget).data("photo");
+			console.log(photoURL);
+			viewPhoto(photoURL);
+		}else{
+			viewGallery(galleryID);
+		}
+	}
+</script>
+<div class="backToHome" style="display:none">
+	Back
+</div>
+<div class="galleryContainer">
+	<div class="home">
+		<% for(var i=0; i<galleries.length; i++) {%>
+			<% if(galleries[i].coverPhoto.length){%>
+				<div class="photoContainer" data-galleryID="<%=galleries[i].id%>">
+					<img src="<%= galleries[i].coverPhoto[0].small%>">
+					<div class="caption" style="display:none">
+						<%=galleries[i].name%>
+					</div>
+				</div>
+			<% }%>
+		<% }%>
+	</div>
+	<div class="gallery" style="display:none">
+
+	</div>
+	<div class="clear"></div>
+</div>

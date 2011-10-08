@@ -1,11 +1,28 @@
 var fbGallery = require('./fbGallery/fbGallery.js'),
 http = require('http'),
 express = require('express'),
-app = express.createServer(
-    express.bodyParser()
-  , express.cookieParser()
-  , express.session({ secret: 'Whoa, Pants' })
-);
+stylus = require('stylus'),
+app = express.createServer();
+
+app.configure(function(){
+  app.use(express.methodOverride());
+  app.use(express.bodyParser());
+  app.use(express.cookieParser());
+  app.use(express.session({ secret: 'Whoa, Pants' }));
+
+  app.set('views', __dirname + '/../browser/views');
+  app.use(stylus.middleware({
+    src: __dirname + '/../browser',
+    compile: function(str, path) { // optional, but recommended
+      return stylus(str)
+      .set('filename', path)
+      .set('warn', true)
+      .set('compress', true);
+    }
+  }));
+  app.use(app.router);
+  app.use(express.static(__dirname + '/../browser'));
+});
 
 fbGallery.init("AAAECI9o4wTkBAJ8H2HYtvRIJZB6YCN26ud1q3bUFYqEYDqzkoG7IMehS69Cihc183dX5gsF6SPETkhRs7EkdF11rwhUcZD");
 app.set('view engine', 'ejs');
