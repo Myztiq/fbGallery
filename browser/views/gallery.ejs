@@ -70,25 +70,16 @@
 			}
 			var captions = jQuery(item).children(".caption");
 			jQuery(item).animate({
-				scale:.1
-			},0,function(){
-				jQuery(item).animate({
-					left:(currentRowItem*itemWidth),
-					top:(currentRow*itemHeight),
-					opacity:1,
-					scale:1
-				},1*1000,function(){
-					if(captions.length){
-						jQuery(captions).animate({
-							rotateX: '-='+Math.PI/2
-						},0,function(){
-							jQuery(captions).animate({
-								opacity:1,
-								rotateX: '+='+Math.PI/2
-							},1000);
-						});
-					}
-				});
+				left:(currentRowItem*itemWidth),
+				top:(currentRow*itemHeight),
+				opacity:1
+			},1*1000,function(){
+				if(captions.length){
+					jQuery(captions).css('opacity',0);
+					jQuery(captions).animate({
+						opacity:1
+					},1000);
+				}
 			});
 		});
 		jQuery(".galleryContainer").animate({
