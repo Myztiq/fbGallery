@@ -11,7 +11,7 @@
 			var top = sourceDiv.css("top");
 			jQuery(".galleryContainer .gallery").html("");
 			for(i=0;i<galleryData.photos.length;i++){
-				jQuery(".galleryContainer .gallery").append('<div class="photoContainer" style="opacity:0;left:'+left+';top:'+top+'" data-photo="'+galleryData.photos[i].large.url+'"><img src="'+galleryData.photos[i].small+'">');
+				jQuery(".galleryContainer .gallery").append('<div rel="gallery" class="photoContainer" style="opacity:0;left:'+left+';top:'+top+'" data-photo="'+galleryData.photos[i].large.url+'"><img src="'+galleryData.photos[i].small+'">');
 			}
 			jQuery(".galleryContainer .home").hide();
 			jQuery(".backToHome").fadeIn();
@@ -19,14 +19,26 @@
 			animatePhotos();
 		});
 	}
-	function viewPhoto(photoURL){
-		jQuery.fancybox({
-            'orig'          : jQuery(".galleryContainer .photoContainer[data-photo='"+photoURL+"']"),
-            'href'          : photoURL,
-            'transitionIn'  : 'elastic',
-            'transitionOut' : 'elastic',
-			'padding'        : 5
-        });
+	function viewPhoto(index){
+		var photos = [];
+		jQuery(".galleryContainer .gallery .photoContainer").each(function(index,item){
+			photos.push(jQuery(item).data("photo"));
+		});
+		jQuery.fancybox(
+			photos,
+			{
+				'orig'          : jQuery(".galleryContainer div:visible .photoContainer:nth-child("+(index+1)+")")[0],
+				'transitionIn'  : 'elastic',
+				'transitionOut' : 'elastic',
+				'padding'       : 5,
+				'index'         : index,
+				'type'          : "image",
+				onStart: function(selectedArray, selectedIndex, selectedOptions){
+					return {
+						orig: jQuery(".galleryContainer div:visible .photoContainer:nth-child("+(selectedIndex+1)+")")[0]
+					}
+				}
+			});
 	}
 	function viewOriginal(){
 		jQuery(".galleryContainer .home .photoContainer").css("left","0");
@@ -84,8 +96,7 @@
 	function handlePhotoClick(evt){
 		var galleryID = jQuery(evt.currentTarget).data("galleryid");
 		if(typeof galleryID == "undefined"){
-			var photoURL = jQuery(evt.currentTarget).data("photo");
-			viewPhoto(photoURL);
+			viewPhoto(jQuery(".galleryContainer .gallery .photoContainer").index(evt.currentTarget));
 		}else{
 			viewGallery(galleryID);
 		}
