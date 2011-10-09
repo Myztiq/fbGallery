@@ -22,23 +22,25 @@
 	function viewPhoto(index){
 		var photos = [];
 		jQuery(".galleryContainer .gallery .photoContainer").each(function(index,item){
-			photos.push(jQuery(item).data("photo"));
-		});
-		jQuery.fancybox(
-			photos,
-			{
-				'orig'          : jQuery(".galleryContainer div:visible .photoContainer:nth-child("+(index+1)+")")[0],
-				'transitionIn'  : 'elastic',
-				'transitionOut' : 'elastic',
-				'padding'       : 5,
-				'index'         : index,
-				'type'          : "image",
-				onStart: function(selectedArray, selectedIndex, selectedOptions){
-					return {
-						orig: jQuery(".galleryContainer div:visible .photoContainer:nth-child("+(selectedIndex+1)+")")[0]
-					}
-				}
+			photos.push({
+				'href':jQuery(item).data("photo"),
+				'title':'<a style="color:white" target="_blank" href="'+jQuery(item).data("photo")+'">Download</a> '
 			});
+		});
+		jQuery.fancybox(photos,{
+			'orig'          : jQuery(".galleryContainer div:visible .photoContainer:nth-child("+(index+1)+")")[0],
+			'transitionIn'  : 'elastic',
+			'transitionOut' : 'elastic',
+			'padding'       : 5,
+			'index'         : index,
+			'type'          : "image",
+			'titlePosition' : 'over',
+			onStart: function(selectedArray, selectedIndex, selectedOptions){
+				return {
+					orig: jQuery(".galleryContainer div:visible .photoContainer:nth-child("+(selectedIndex+1)+")")[0]
+				}
+			}
+		});
 	}
 	function viewOriginal(){
 		jQuery(".galleryContainer .home .photoContainer").css("left","0");

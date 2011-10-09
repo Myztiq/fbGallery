@@ -1,5 +1,0 @@
-.galleryContainer{background-color:#e0e0e0;border:10px solid #e0e0e0;border-radius:10px;position:relative;min-height:150px;}
-.galleryContainer .photoContainer{width:150px;position:absolute;margin:10px;}
-.galleryContainer .photoContainer img{border:5px solid #fff;border-radius:4px}
-.galleryContainer .photoContainer .caption{text-align:center}
-.backToHome{background-color:#8a8a8a;border:5px solid #8a8a8a;border-radius:5px;position:absolute;top:-15px;left:-22px;z-index:1}
