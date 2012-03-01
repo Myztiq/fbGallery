@@ -24,7 +24,7 @@ app.configure(function(){
   app.use(express.static(__dirname + '/../browser'));
 });
 
-fbGallery.init("AAAECI9o4wTkBAJ8H2HYtvRIJZB6YCN26ud1q3bUFYqEYDqzkoG7IMehS69Cihc183dX5gsF6SPETkhRs7EkdF11rwhUcZD");
+fbGallery.init("Enter your code here");
 app.set('view engine', 'ejs');
 app.set('view options', {
   layout: "layout.ejs"
